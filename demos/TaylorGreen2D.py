@@ -74,7 +74,7 @@ u_exact = solnT*u_IC
 
 # Weak problem residual; note use of midpoint velocity:
 F = interiorResidual(u_mid,p,v,q,rho,mu,mesh,
-                     u_t=u_t,C_I=Constant(6.0*(k**4)),dx=dx)
+                     u_t=u_t,Dt=Dt,C_I=Constant(6.0*(k**4)),dx=dx)
 
 # Project the initial condition:
 up_old.assign(project(as_vector((u_IC[0],u_IC[1],Constant(0.0))),V))

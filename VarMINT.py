@@ -99,6 +99,13 @@ def interiorResidual(u,p,v,q,rho,mu,mesh,
     immersed-boundary methods.  A custom volume integration measure, 
     ``dx``, may also be specified.
     """
+
+    # Do a quick consistency check, to avoid a difficult-to-diagnose error:
+    if((u_t != None) and (Dt==None)):
+        print("VarMINT WARNING: Missing time step in unsteady problem.")
+    if((Dt != None) and (u_t==None)):
+        print("VarMINT WARNING: Passing time step to steady problem.")
+    
     G = meshMetric(mesh)
     nu = mu/rho
     tau_M, tau_C = stabilizationParameters(u,nu,G,C_I,C_t,Dt,stabScale)
