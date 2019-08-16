@@ -167,7 +167,7 @@ def stableNeumannBC(traction,rho,u,v,n,g=None,ds=ds,gamma=Constant(1.0)):
 
 def weakDirichletBC(u,p,v,q,g,rho,mu,mesh,ds=ds,
                     sym=True,C_pen=Constant(1e3),
-                    overPenalize=False,slip=False):
+                    overPenalize=False):
     """
     This returns the variational form corresponding to a weakly-enforced 
     velocity Dirichlet BC, with data ``g``, on the boundary measure
