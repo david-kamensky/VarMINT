@@ -135,8 +135,8 @@ def stableNeumannBC(traction,rho,u,v,n,g=None,ds=ds,gamma=Constant(1.0)):
     corresponding to a boundary ``traction`` when the velocity ``u`` (with 
     corresponding test function ``v``) is flowing out of the domain, 
     as determined by comparison with the outward-pointing normal, ``n``.  
-    The optional velocity ``g`` can be used to offset the advective velocity,
-    as on moving meshes, or if this term is used to obtain a(n inflow-
+    The optional velocity ``g`` can be used to offset the boundary velocity,
+    as when this term is used to obtain a(n inflow-
     stabilized) consistent traction for weak enforcement of Dirichlet BCs.  
     The paramter ``gamma`` can optionally be used to scale the
     inflow term.  The BC is integrated using the optionally-specified 
@@ -158,12 +158,12 @@ def stableNeumannBC(traction,rho,u,v,n,g=None,ds=ds,gamma=Constant(1.0)):
     for discussion in the context of Navier--Stokes.  
     """
     if(g==None):
-        u_adv = u
+        u_minus_g = u
     else:
-        u_adv = u-g
+        u_minus_g = u-g
     return -(inner(traction,v)
-             + gamma*rho*ufl.Min(inner(u_adv,n),Constant(0.0))
-             *inner(u_adv,v))*ds
+             + gamma*rho*ufl.Min(inner(u,n),Constant(0.0))
+             *inner(u_minus_g,v))*ds
 
 def weakDirichletBC(u,p,v,q,g,rho,mu,mesh,ds=ds,
                     sym=True,C_pen=Constant(1e3),
