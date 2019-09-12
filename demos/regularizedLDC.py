@@ -31,6 +31,8 @@ parser.add_argument('--Galilean_y',dest='Galilean_y',default=0.0,
                     help='y-component of Galilean transformation.')
 parser.add_argument('--nonSymBC',dest='nonSymBC',action='store_true',
                     help='Use symmetric Nitsche method for weak BCs.')
+parser.add_argument('--viz',dest='viz',action='store_true',
+                    help='Write ParaView files with solution.')
 parser.add_argument('--overPenalize',dest='overPenalize',action='store_true',
                     help='Use penalty with non-symmetric Nitsche method.')
 parser.add_argument('--C_pen',dest='C_pen',default=1e3,
@@ -45,6 +47,7 @@ u_Gal = as_vector((Constant(float(args.Galilean_x)),
 symBC = (not bool(args.nonSymBC))
 overPenalize = bool(args.overPenalize)
 C_pen = Constant(float(args.C_pen))
+viz = bool(args.viz)
 
 ####### Analysis #######
 
@@ -56,11 +59,8 @@ ds = ds(metadata={"quadrature_degree":QUAD_DEG})
 # Domain:
 mesh = UnitSquareMesh(Nel,Nel)
 
-# Mixed velocity--pressure element:
-VE = VectorElement("Lagrange",mesh.ufl_cell(),k)
-QE = FiniteElement("Lagrange",mesh.ufl_cell(),k)
-VQE = MixedElement([VE,QE])
-V = FunctionSpace(mesh,VQE)
+# Mixed velocity--pressure space:
+V = equalOrderSpace(mesh,k=k)
 
 # Solution and test functions:
 up = Function(V)
@@ -94,6 +94,14 @@ F += weakDirichletBC(u,p,v,q,u_exact,
 
 # Solve for velocity and pressure:
 solve(F==0,up)
+
+# Output solution, if requested via --viz argument:
+if(viz):
+    u_out,p_out = up.split()
+    u_out.rename("u","u")
+    p_out.rename("p","p")
+    File("results/u.pvd") << u_out
+    File("results/p.pvd") << p_out
 
 # Check error in velocity:
 import math
