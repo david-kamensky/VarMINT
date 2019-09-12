@@ -100,5 +100,6 @@ for step in range(0,N_STEPS):
 def L2Norm(u):
     return math.sqrt(assemble(inner(u,u)*dx))
 e_u = u - u_exact
+print("Element size = "+str(2.0*math.pi/Nel))
 print("H1 seminorm velocity error = "+str(L2Norm(grad(e_u))))
 print("L2 norm velocity error = "+str(L2Norm(e_u)))
