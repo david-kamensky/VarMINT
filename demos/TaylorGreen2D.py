@@ -39,11 +39,8 @@ mesh = RectangleMesh(Point(-math.pi,-math.pi),
                      Point(math.pi,math.pi),
                      Nel,Nel)
 
-# Mixed velocity--pressure element:
-VE = VectorElement("Lagrange",mesh.ufl_cell(),k)
-QE = FiniteElement("Lagrange",mesh.ufl_cell(),k)
-VQE = MixedElement([VE,QE])
-V = FunctionSpace(mesh,VQE)
+# Mixed velocity--pressure space:
+V = equalOrderSpace(mesh,k=k)
 
 # Solution and test functions:
 up = Function(V)
