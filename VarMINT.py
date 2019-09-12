@@ -14,6 +14,18 @@ but may be added in the future.
 from dolfin import *
 import ufl
 
+def equalOrderSpace(mesh,k=1):
+    """
+    Generate the most common choice of equal-order velocity--pressure 
+    function space to use on a given ``mesh``.  The polynomial degree 
+    ``k`` defaults to ``1``.  (Use of such equal-order space is not
+    required.)
+    """
+    VE = VectorElement("Lagrange",mesh.ufl_cell(),k)
+    QE = FiniteElement("Lagrange",mesh.ufl_cell(),k)
+    VQE = MixedElement([VE,QE])
+    return FunctionSpace(mesh,VQE)
+
 def meshMetric(mesh):
     """
     Extract mesh size tensor from a given ``mesh``.
@@ -42,12 +54,27 @@ def stabilizationParameters(u,nu,G,C_I,C_t,Dt=None,scale=Constant(1.0)):
     tau_C = 1.0/(tau_M*tr(G))
     return tau_M, tau_C
 
+def sigmaVisc(u,mu):
+    """
+    The viscous part of the Cauchy stress, in terms of velocity ``u`` and
+    dynamic viscosity ``mu``.
+    """
+    return 2.0*mu*sym(grad(u))
+
 def sigma(u,p,mu):
     """
     The fluid Cauchy stress, in terms of velocity ``u``, pressure ``p``, 
     and dynamic viscosity ``mu``.
     """
-    return 2.0*mu*sym(grad(u)) - p*Identity(ufl.shape(u)[0])
+    return sigmaVisc(u,mu) - p*Identity(ufl.shape(u)[0])
+
+def resolvedDissipationForm(u,v,mu,dx=dx):
+    """
+    The weak form of the viscous operator, in terms of velocity ``u``, 
+    test function ``v``, and dynamic viscosity ``mu``.  A volume integration
+    measure ``dx`` can optionally be specified.
+    """
+    return inner(sigmaVisc(u,mu),grad(v))*dx
 
 def materialTimeDerivative(u,u_t=None,f=None):
     """
