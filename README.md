@@ -7,7 +7,8 @@ This module was originally written to support the following paper, submitted to 
 title = "Open-source immersogeometric fluid--structure interaction analysis using {FEniCS} and {tIGAr}",
 journal = "Computers \& Mathematics With Applications",
 author = "D. Kamensky",
-note = "Under review"
+doi = "https://doi.org/10.1016/j.camwa.2020.01.023",
+note = "In press"
 }
 ```
 VarMINT is intentionally light-weight, and mainly intended to avoid needless duplication of UFL code defining the VMS formulation in different applications.  A more comprehensive FEniCS-based flow solver using a similar VMS formulation is described by Zhu and Yan [here](https://doi.org/10.1016/j.camwa.2019.07.034).
