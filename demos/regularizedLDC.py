@@ -92,8 +92,12 @@ F += weakDirichletBC(u,p,v,q,u_exact,
                      sym=symBC,C_pen=C_pen,
                      overPenalize=overPenalize)
 
+# Pin pressure at one node to remove hydrostatic mode:
+bc = DirichletBC(V.sub(1),Constant(0),"x[0]<DOLFIN_EPS && x[1]<DOLFIN_EPS",
+                 "pointwise")
+
 # Solve for velocity and pressure:
-solve(F==0,up)
+solve(F==0,up,bcs=[bc,])
 
 # Output solution, if requested via --viz argument:
 if(viz):
