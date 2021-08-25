@@ -102,7 +102,7 @@ def strongResidual(u,p,mu,rho,u_t=None,f=None):
     r_C = rho*div(u)
     return r_M, r_C
 
-def interiorResidual(u,p,v,q,rho,mu,mesh,
+def interiorResidual(u,p,v,q,rho,mu,mesh,G=None,
                      u_t=None,Dt=None,
                      f=None,
                      C_I=Constant(3.0),
@@ -132,8 +132,8 @@ def interiorResidual(u,p,v,q,rho,mu,mesh,
         print("VarMINT WARNING: Missing time step in unsteady problem.")
     if((Dt != None) and (u_t==None)):
         print("VarMINT WARNING: Passing time step to steady problem.")
-    
-    G = meshMetric(mesh)
+    if G == None:
+        G = meshMetric(mesh)
     nu = mu/rho
     tau_M, tau_C = stabilizationParameters(u,nu,G,C_I,C_t,Dt,stabScale)
     DuDt = materialTimeDerivative(u,u_t,f)
@@ -192,7 +192,7 @@ def stableNeumannBC(traction,rho,u,v,n,g=None,ds=ds,gamma=Constant(1.0)):
              + gamma*rho*ufl.Min(inner(u,n),Constant(0.0))
              *inner(u_minus_g,v))*ds
 
-def weakDirichletBC(u,p,v,q,g,rho,mu,mesh,ds=ds,
+def weakDirichletBC(u,p,v,q,g,rho,mu,mesh,ds=ds,G=None,
                     sym=True,C_pen=Constant(1e3),
                     overPenalize=False):
     """
@@ -218,7 +218,8 @@ def weakDirichletBC(u,p,v,q,g,rho,mu,mesh,ds=ds,
     sgn = 1.0
     if(not sym):
         sgn = -1.0
-    G = meshMetric(mesh) # $\sim h^{-2}$
+    if G == None:
+        G = meshMetric(mesh) # $\sim h^{-2}$
     traction = sigma(u,p,mu)*n
     consistencyTerm = stableNeumannBC(traction,rho,u,v,n,g=g,ds=ds)
     # Note sign of ``q``, negative for stability, regardless of ``sym``.
