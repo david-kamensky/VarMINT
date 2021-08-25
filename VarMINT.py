@@ -117,8 +117,11 @@ def interiorResidual(u,p,v,q,rho,mu,mesh,G=None,
     the pressure ``p``, the test function (`v`,`q`), the time step ``Dt``, 
     the mass density ``rho``, the dynamic viscosity ``mu``, and a body
     force per unit mass, ``f``.  For steady flows, ``u_t`` and ``Dt`` 
-    can be left with their default values of ``None``. Optionally, 
-    one can also tune the order-1 dimensionless parameters ``C_I`` and 
+    can be left with their default values of ``None``.  The argument ``G``
+    can optionally be given a non-``None`` value, to use an alternate
+    mesh size tensor.  If left as ``None``, it will be set to the
+    output of ``meshMetric(mesh)``.  Optionally, one can also tune 
+    the order-1 dimensionless parameters ``C_I`` and 
     ``C_t`` or a (possibly spatially-varying) scaling factor on the SUPG 
     constant, ``stabScale``.  The default values are robust for normal usage
     with linear finite elements.  ``C_I`` may need to be larger for high-order
@@ -205,7 +208,9 @@ def weakDirichletBC(u,p,v,q,g,rho,mu,mesh,ds=ds,G=None,
     non-symmetric variant can be used by overriding ``sym``.  ``C_pen`` is
     a dimensionless scaling factor on the penalty term.  The penalty term
     is omitted if ``not sym``, unless ``overPenalize`` is 
-    optionally set to ``True``.  
+    optionally set to ``True``.  The argument ``G`` can optionally be given 
+    a non-``None`` value, to use an alternate mesh size tensor.  If left 
+    as ``None``, it will be set to the output of ``meshMetric(mesh)``.
 
     NOTE: The sign convention here assumes that the return value is 
     ADDED to the residual given by ``interiorResidual``.
