@@ -81,11 +81,12 @@ v_exact = as_vector((8.0*(pow(x[0],4) - 2.0*pow(x[0],3)
 p_exact = sin(pi*x[0])*sin(pi*x[1])
 
 # Manufacture a solution:
-f,_ = strongResidual(v_exact,p_exact,mu,rho)
+zero = Constant(mesh.geometric_dimension()*(0,))
+f,_ = strongResidual(v_exact,p_exact,x,zero,mu,rho,zero,zero)
 
 # Weak problem residual:
 F = interiorResidual(v,p,dv,dp,rho,mu,mesh,
-                     f=f,C_I=Constant(6.0*(k**4)),dx=dx)
+                     f=f,C_I=Constant(6.0*(k**4)),dy=dx)
 F += weakDirichletBC(v,p,dv,dp,v_exact,
                      rho,mu,mesh,
                      ds=ds,
