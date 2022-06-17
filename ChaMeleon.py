@@ -1,9 +1,12 @@
 '''
+ChaMeleon: Convert Mesh
+---------------------------------------------------------------------
+
 Convert a mesh from GMSH (.msh) to XDMF (.xdmf + .h5) that is compatible with
-FEniCS with independent mesh, subdomain, and boundary data.
+FEniCS with independent mesh, subdomain, and boundary files.
 
 Dependencies:
-    meshio (4.1.1) - see https://pypi.org/project/meshio/
+    meshio - see https://pypi.org/project/meshio/
 
 Written by:
     Grant Neighbor
