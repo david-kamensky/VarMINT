@@ -368,7 +368,7 @@ while step < N_STEPS:
     if (step%VIS_SKIP==0):
         v.rename("v","v")
         p.rename("p","p")
-        uhat.rename("u","u")
+        uhat.rename("uhat","uhat")
         outFile.write(v,t)
         outFile.write(p,t)
         outFile.write(uhat,t)
