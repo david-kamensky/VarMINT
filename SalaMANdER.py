@@ -45,7 +45,7 @@ class MaterialModel(ABC):
     def accelerationResidual(self,du_dtt,v,dx=dx):
         return self.rho*inner(du_dtt,v)*dx
 
-    def dampingResidual(self,du_dt,c,v,dx=dx):
+    def massDampingResidual(self,du_dt,c,v,dx=dx):
         return self.rho*c*inner(du_dt,v)*dx
 
     def bodyforceResidual(self,f,v,dx=dx):
