@@ -12,6 +12,14 @@ to be duplicated for each new material model.
 from abc import ABC, abstractmethod
 from dolfin import *
 
+def bulkModulus(E,nu):
+    """ Convert a Young's modulus and a Poisson's ratio to a bulk modulus."""
+    return E/(3*(1-2*nu))
+
+def shearModulus(E,nu):
+    """ Convert a Young's modulus and a Poisson's ratio to a shear modulus."""
+    return E/(2*(1 + nu))
+
 
 class MaterialModel(ABC):
     """
