@@ -27,23 +27,15 @@ class MaterialModel(ABC):
     properties. This abstract class leaves the interiorResidual to each 
     subclass material.
     """
-    E = Constant(0,name="E")            # Young's modulus
-    nu = Constant(0,name="nu")          # Poisson's ratio
-    kappa = Constant(0,name="kappa")    # build modulus
-    mu = Constant(0,name="mu")          # shear modulus
-    lmbda = Constant(0,name="lmbda")    # Lame parameter
 
-    rho = Constant(0,name="rho")        # material density
-    nsd = 0                             # number of spatial dimensions
-
-    def __init__(self,nsd,E,nu,rho):
-        self.nsd = nsd 
-        self.E.assign(E)
-        self.nu.assign(nu)
-        self.kappa.assign(E/(3*(1-2*nu)))
-        self.mu.assign(E/(2*(1 + nu)))
-        self.lmbda.assign(E*nu/((1 + nu)*(1 - 2*nu)))
-        self.rho.assign(rho)
+    def __init__(self,rho=Constant(0),**props):
+        """
+        Initiate a material model with a density ``rho`` and other material
+        properites (Young's modulus, Poisson's ratio, etc) that are used by the
+        concrete classes.
+        """
+        self.rho = rho
+        self.props = props
         super().__init__()
 
     @abstractmethod
@@ -62,8 +54,12 @@ class MaterialModel(ABC):
     def tractionBCResidual(self,h,v,ds=ds):
         return - inner(v,h)*ds
 
-    def get_basic_tensors(self,u):
-        I = Identity(self.nsd)
+    def getBasicTensors(self,u):
+        if not u.ufl_shape:
+            nsd = 0
+        else:
+            nsd = u.ufl_shape[0]
+        I = Identity(nsd)
         F = grad(u) + I
         J = det(F)
         C = F.T*F
@@ -73,36 +69,48 @@ class MaterialModel(ABC):
 
 
 class StVenantKirchoff(MaterialModel):
-    """ A St. Venant-Kirchoff material."""
+    """ 
+    A St. Venant-Kirchoff material. 
+    
+    Requires material properties 'kappa' (bulk modulus) and 'mu' (shear
+    modulus).
+    """
 
     def interiorResidual(self,u,v,dx=dx):
-        I,F,_,_,E = self.get_basic_tensors(u)
-        S = self.kappa*tr(E)*I + 2.0*self.mu*(E - tr(E)*I/3.0)
+        I,F,_,_,E = self.getBasicTensors(u)
+        S = self.props['kappa']*tr(E)*I \
+            + 2.0*self.props['mu']*(E - tr(E)*I/3.0)
         return inner(F*S,grad(v))*dx
 
 
 class NeoHookean(MaterialModel):
-    """ A Neo-Hookean material from Wu et al. 2019."""
+    """ 
+    A Neo-Hookean material from Wu et al. 2019. 
+    
+    Requires material properties 'kappa' (bulk modulus) and 'mu' (shear
+    modulus).
+    """
 
     def interiorResidual(self,u,v,S0=None,dx=dx):
-        I,F,J,C,_ = self.get_basic_tensors(u)
+        I,F,J,C,_ = self.getBasicTensors(u)
         if (S0==None):
             S0 = Constant(0)*I
-        S = self.mu*(J**(-2/3))*(I-tr(C)*inv(C)/3) \
-            + self.kappa/2*((J**2)-1)*inv(C)
+        S = self.props['mu']*(J**(-2/3))*(I-tr(C)*inv(C)/3) \
+            + self.props['kappa']/2*((J**2)-1)*inv(C)
         return inner(F*(S+S0),grad(v))*dx
 
 
 class JacobianStiffening(MaterialModel):
-    """ Jacobian-based mesh stiffening."""
-    def __init__(self,nsd,power=3):
-        self.power = Constant(power,name="power")
-        zero = Constant(0)
-        super().__init__(nsd,zero,zero,zero)
+    """ 
+    Jacobian-based mesh stiffening. 
+    
+    Requires material property 'power' to define the strength of the
+    stiffening.
+    """
 
-    def interiorResidual(self, u, v, dx=dx):
-        I,F,J,_,E = self.get_basic_tensors(u)
-        K = Constant(1)/pow(J,self.power)
-        mu = Constant(1)/pow(J,self.power)
+    def interiorResidual(self,u,v,dx=dx):
+        I,F,J,_,E = self.getBasicTensors(u)
+        K = Constant(1)/pow(J,self.props['power'])
+        mu = Constant(1)/pow(J,self.props['power'])
         S = K*tr(E)*I + 2.0*mu*(E - tr(E)*I/3.0)
         return inner(F*S,grad(v))*dx
