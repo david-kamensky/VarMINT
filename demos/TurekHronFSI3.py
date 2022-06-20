@@ -222,7 +222,7 @@ bcs_m = [
 ####### Formulation of mesh motion subproblem #######
 
 # Residual for mesh, which satisfies a fictitious elastic problem:
-mesh_model = sm.JacobianStiffening(nsd)
+mesh_model = sm.JacobianStiffening(power=Constant(3))
 res_m = mesh_model.interiorResidual(uhat,du,dx=dx)
 Dres_m = derivative(res_m, uhat)
 
@@ -236,7 +236,9 @@ E_s = 2*mu_s*(1+nu_s)
 rho_s0 = Constant(1e3)
 
 dX = dx(FLAG_ELASTIC)
-solid_model = sm.StVenantKirchoff(nsd, E_s, nu_s, rho_s0)
+solid_model = sm.StVenantKirchoff(rho_s0,
+                                  kappa=sm.bulkModulus(E_s,nu_s),
+                                  mu=mu_s)
 res_s = solid_model.interiorResidual(u,dv,dx=dX)
 res_s += solid_model.accelerationResidual(dv_ds,dv,dx=dX)
 
