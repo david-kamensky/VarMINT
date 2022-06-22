@@ -14,10 +14,22 @@ from dolfin import *
 
 def bulkModulus(E,nu):
     """ Convert a Young's modulus and a Poisson's ratio to a bulk modulus."""
-    return E/(3*(1-2*nu))
+    return firstLameParameter(E,nu) + 2/3*secondLameParameter(E,nu)
 
 def shearModulus(E,nu):
     """ Convert a Young's modulus and a Poisson's ratio to a shear modulus."""
+    return secondLameParameter(E,nu)
+
+def firstLameParameter(E,nu):
+    """ 
+    Convert Young's modulus and Poisson's ratio to Lame's first parameter.
+    """
+    return E*nu/((1+nu)*(1-2*nu))
+
+def secondLameParameter(E,nu):
+    """ 
+    Convert Young's modulus and Poisson's ratio to Lame's second parameter.
+    """
     return E/(2*(1 + nu))
 
 
