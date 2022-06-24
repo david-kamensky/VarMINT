@@ -10,7 +10,7 @@ def read(fname):
 setup(
     name='VarMINT',
     version='2019.1',
-    packages=['VarMINT','SalaMANdER','ChaMeleon'],
+    packages=[],
     url='https://github.com/david-kamensky/VarMINT',
     license='GNU LGPLv3',
     author='D. Kamensky',
