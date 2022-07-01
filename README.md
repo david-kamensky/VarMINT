@@ -5,6 +5,10 @@ The **S**olid **M**echanics **A**nd **N**onlinear **E**lasticity **R**outines mo
 
 The **C**onvert **M**esh utility, ChaMeleon, was written to convert meshes generated with [GMSH](gmsh.info) to FEniCS-compatible XDMF-format meshes using [meshio](https://pypi.org/project/meshio/).
 
+To install these modules, do: 
+```
+pip3 install git+https://github.com/david-kamensky/VarMINT.git
+```
 
 This module was originally written to support the following paper, submitted to a special issue on open-source software for partial differential equations:
 ```
