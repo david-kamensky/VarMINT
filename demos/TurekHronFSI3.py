@@ -6,7 +6,7 @@ This demo requires GMSH (https://gmsh.info/) for meshing and meshio
 
 To generate the mesh for this problem, use the attached TurekHronGMSH.geo file
 (contains geometry and mesh refinement information) and GMSH to generate the
-mesh. Then convert it with the convertmesh.py utility provided with this
+mesh. Then convert it with the ChaMeleon.py utility provided with this
 repository (it splits out the proper mesh, subdomain marker, and boundary
 marker files). NOTE: Since this is a 2D problem, the z-coordinates need to be
 trimmed in the conversion process, the domain element should be "triangle", and
