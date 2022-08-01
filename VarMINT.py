@@ -139,7 +139,7 @@ def interiorResidual(v,p,dv,dp,rho,mu,mesh,
     density ``rho``, the dynamic viscosity ``mu``, a body force per unit mass,
     ``f``, a mesh displacement ``uhat``, and a mesh velocity ``vhat``.  For
     steady flows, ``v_t`` and ``Dt`` can be left with their default values of
-    ``None``. FOr non-moving meshes, ``uhat`` and ``vhat`` can be left as thier
+    ``None``. For non-moving meshes, ``uhat`` and ``vhat`` can be left as their
     default values of ``None``. Optionally, one can also tune the order-1
     dimensionless parameters ``C_I`` and ``C_t`` or a (possibly
     spatially-varying) scaling factor on the SUPG constant, ``stabScale``. The
