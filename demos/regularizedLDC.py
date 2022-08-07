@@ -42,7 +42,7 @@ args = parser.parse_args()
 Nel = int(args.Nel)
 Re = Constant(float(args.Re))
 k = int(args.k)
-u_Gal = as_vector((Constant(float(args.Galilean_x)),
+v_Gal = as_vector((Constant(float(args.Galilean_x)),
                    Constant(float(args.Galilean_y))))
 symBC = (not bool(args.nonSymBC))
 overPenalize = bool(args.overPenalize)
@@ -63,10 +63,10 @@ mesh = UnitSquareMesh(Nel,Nel)
 V = equalOrderSpace(mesh,k=k)
 
 # Solution and test functions:
-up = Function(V)
-u,p = split(up)
-vq = TestFunction(V)
-v,q = split(vq)
+vp = Function(V)
+v,p = split(vp)
+dvdp = TestFunction(V)
+dv,dp = split(dvdp)
 
 # Determine physical parameters from Reynolds number:
 rho = Constant(1.0)
@@ -74,19 +74,20 @@ mu = Constant(1.0/Re)
 
 # Exact solution:
 x = SpatialCoordinate(mesh)
-u_exact = as_vector((8.0*(pow(x[0],4) - 2.0*pow(x[0],3)
+v_exact = as_vector((8.0*(pow(x[0],4) - 2.0*pow(x[0],3)
                           + pow(x[0],2))*(4.0*pow(x[1],3) - 2.0*x[1]),
                      -8.0*(4.0*pow(x[0],3) - 6.0*pow(x[0],2)
-                           + 2.0*x[0])*(pow(x[1],4) - pow(x[1],2)))) + u_Gal
+                           + 2.0*x[0])*(pow(x[1],4) - pow(x[1],2)))) + v_Gal
 p_exact = sin(pi*x[0])*sin(pi*x[1])
 
 # Manufacture a solution:
-f,_ = strongResidual(u_exact,p_exact,mu,rho)
+zero = Constant(mesh.geometric_dimension()*(0,))
+f,_ = strongResidual(v_exact,p_exact,x,zero,mu,rho,zero,zero)
 
 # Weak problem residual:
-F = interiorResidual(u,p,v,q,rho,mu,mesh,
-                     f=f,C_I=Constant(6.0*(k**4)),dx=dx)
-F += weakDirichletBC(u,p,v,q,u_exact,
+F = interiorResidual(v,p,dv,dp,rho,mu,mesh,
+                     f=f,C_I=Constant(6.0*(k**4)),dy=dx)
+F += weakDirichletBC(v,p,dv,dp,v_exact,
                      rho,mu,mesh,
                      ds=ds,
                      sym=symBC,C_pen=C_pen,
@@ -97,21 +98,21 @@ bc = DirichletBC(V.sub(1),Constant(0),"x[0]<DOLFIN_EPS && x[1]<DOLFIN_EPS",
                  "pointwise")
 
 # Solve for velocity and pressure:
-solve(F==0,up,bcs=[bc,])
+solve(F==0,vp,bcs=[bc,])
 
 # Output solution, if requested via --viz argument:
 if(viz):
-    u_out,p_out = up.split()
-    u_out.rename("u","u")
+    v_out,p_out = vp.split()
+    v_out.rename("v","v")
     p_out.rename("p","p")
-    File("results/u.pvd") << u_out
+    File("results/v.pvd") << v_out
     File("results/p.pvd") << p_out
 
 # Check error in velocity:
 import math
-def L2Norm(u):
-    return math.sqrt(assemble(inner(u,u)*dx))
-e_u = u-u_exact
+def L2Norm(f):
+    return math.sqrt(assemble(inner(f,f)*dx))
+e_v = v-v_exact
 print("Element size = "+str(1.0/Nel))
-print("H1 seminorm velocity error = "+str(L2Norm(grad(e_u))))
-print("L2 norm velocity error = "+str(L2Norm(e_u)))
+print("H1 seminorm velocity error = "+str(L2Norm(grad(e_v))))
+print("L2 norm velocity error = "+str(L2Norm(e_v)))

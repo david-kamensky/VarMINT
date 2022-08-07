@@ -43,18 +43,18 @@ mesh = RectangleMesh(Point(-math.pi,-math.pi),
 V = equalOrderSpace(mesh,k=k)
 
 # Solution and test functions:
-up = Function(V)
-u,p = split(up)
-vq = TestFunction(V)
-v,q = split(vq)
+vp = Function(V)
+v,p = split(vp)
+dvdp = TestFunction(V)
+dv,dp = split(dvdp)
 
 # Midpoint time integration:
 N_STEPS = Nel # Space--time quasi-uniformity
 Dt = Constant(T/N_STEPS)
-up_old = Function(V)
-u_old,_ = split(up_old)
-u_mid = 0.5*(u+u_old)
-u_t = (u-u_old)/Dt
+vp_old = Function(V)
+v_old,_ = split(vp_old)
+v_mid = 0.5*(v+v_old)
+v_t = (v-v_old)/Dt
 
 # Determine physical parameters from Reynolds number:
 rho = Constant(1.0)
@@ -63,21 +63,21 @@ nu = mu/rho
 
 # Initial condition for the Taylor--Green vortex
 x = SpatialCoordinate(mesh)
-u_IC = as_vector((sin(x[0])*cos(x[1]),-cos(x[0])*sin(x[1])))
+v_IC = as_vector((sin(x[0])*cos(x[1]),-cos(x[0])*sin(x[1])))
 
 # Time dependence of exact solution, evaluated at time T:
 solnT = exp(-2.0*nu*T)
-u_exact = solnT*u_IC
+v_exact = solnT*v_IC
 
 # Weak problem residual; note use of midpoint velocity:
-F = interiorResidual(u_mid,p,v,q,rho,mu,mesh,
-                     u_t=u_t,Dt=Dt,C_I=Constant(6.0*(k**4)),dx=dx)
+F = interiorResidual(v_mid,p,dv,dp,rho,mu,mesh,
+                     v_t=v_t,Dt=Dt,C_I=Constant(6.0*(k**4)),dy=dx)
 
 # Project the initial condition:
-up_old.assign(project(as_vector((u_IC[0],u_IC[1],Constant(0.0))),V))
+vp_old.assign(project(as_vector((v_IC[0],v_IC[1],Constant(0.0))),V))
 
 # Same-velocity predictor:
-up.assign(up_old)
+vp.assign(vp_old)
 
 # Set no-penetration BCs on velocity and pin down pressure in one corner:
 corner_str = "near(x[0],-pi) && near(x[1],-pi)"
@@ -90,13 +90,13 @@ bcs = [DirichletBC(V.sub(0).sub(0),Constant(0.0),
 # Time stepping loop:
 for step in range(0,N_STEPS):
     print("======= Time step "+str(step+1)+"/"+str(N_STEPS)+" =======")
-    solve(F==0,up,bcs=bcs)
-    up_old.assign(up)
+    solve(F==0,vp,bcs=bcs)
+    vp_old.assign(vp)
 
 # Check error:
-def L2Norm(u):
-    return math.sqrt(assemble(inner(u,u)*dx))
-e_u = u - u_exact
+def L2Norm(f):
+    return math.sqrt(assemble(inner(f,f)*dx))
+e_v = v - v_exact
 print("Element size = "+str(2.0*math.pi/Nel))
-print("H1 seminorm velocity error = "+str(L2Norm(grad(e_u))))
-print("L2 norm velocity error = "+str(L2Norm(e_u)))
+print("H1 seminorm velocity error = "+str(L2Norm(grad(e_v))))
+print("L2 norm velocity error = "+str(L2Norm(e_v)))
