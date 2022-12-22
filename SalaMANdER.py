@@ -104,14 +104,11 @@ class NeoHookean(MaterialModel):
     """
 
     def interiorResidual(self,u,v,S0=None,dx=dx):
-        if not u.ufl_shape:
-            nsd = 0
-        else:
-            nsd = u.ufl_shape[0]
         I,F,J,C,_ = self.getBasicTensors(u)
+        nsd = tr(I)
         if (S0==None):
             S0 = Constant(0)*I
-        S = self.props['mu']*(J**(-2/3))*(I-tr(C)*inv(C)/nsd) \
+        S = self.props['mu']*(J**(-2/3))*(I-(tr(C) + (3-nsd))/3*inv(C)) \
             + self.props['kappa']/2*((J**2)-1)*inv(C)
         return inner(F*(S+S0),grad(v))*dx
 
